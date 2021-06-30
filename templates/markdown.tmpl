@@ -1,0 +1,8 @@
+# Outputs
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+{{ range $key, $value := .Outputs }}| {{ $key }} | {{ value $value }} | {{ dataType $value }}
+{{ end }}
