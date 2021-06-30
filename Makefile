@@ -38,7 +38,7 @@ test-fmt:
 	test -z $(shell go fmt $(SOURCE))
 
 test: vet test-fmt
-	go test -ldflags "-X main.version=foo" -cover $(SOURCE) -count=1
+	go test -cover $(SOURCE) -count=1
 
 testdata:
 	docker run \

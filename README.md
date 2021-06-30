@@ -33,7 +33,18 @@ Terraform state outputs.
 | a_string | foo | string
 ```
 
-Example output table formatted by GitHub:
+## More options
+
+```
+terraputs -h
+Usage of terraputs:
+  -heading string
+        Optional; the heading text for use in the printed markdown (default "Outputs")
+  -state string
+        Required; the state JSON output by 'terraform show -json'
+```
+
+## Example output table formatted by GitHub
 
 | Output | Value | Type
 | --- | --- | --- |

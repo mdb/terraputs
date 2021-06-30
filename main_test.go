@@ -33,6 +33,8 @@ func TestHelpFlag(t *testing.T) {
 	help := []string{
 		"-state string",
 		stateDesc,
+		"-heading string",
+		headingDesc,
 	}
 
 	tests := []struct {
