@@ -6,7 +6,7 @@ A CLI to generate Terraform outputs documentation.
 
 ## What's the use case?
 
-Invoke `terraputs -state $(terraform show -json) > outputs.md` after each invocation of `terraform apply` and commit `outputs.md` to source control for up-to-date Terraform state documentation-as-code.
+Invoke `terraputs -state $(terraform show -json) > outputs.md` after each invocation of `terraform apply`. Commit `outputs.md` to source control or publish its contents to offer up-to-date Terraform state documentation.
 
 ## Usage
 
