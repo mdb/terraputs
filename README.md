@@ -47,5 +47,6 @@ Example output table formatted by GitHub:
 
 * provide the ability to pass a custom template
 * improve the formatting and readability of lists and maps
-* integration with Jenkins pipeline
-* automated releases
+* create automated releases
+* create a GitHub Action
+* publish an OCI image
