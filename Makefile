@@ -1,4 +1,4 @@
-VERSION = 0.0.0
+VERSION = 0.0.1
 SOURCE = ./...
 
 .PHONY: help \
@@ -38,7 +38,7 @@ test-fmt:
 	test -z $(shell go fmt $(SOURCE))
 
 test: vet test-fmt
-	go test -ldflags "-X main.version=foo" -cover $(SOURCE) -count=1
+	go test -cover $(SOURCE) -count=1
 
 testdata:
 	docker run \
@@ -54,10 +54,7 @@ testdata:
 				terraform show -json > show.json"
 
 check-tag:
-	@if git rev-parse $(VERSION) >/dev/null 2>&1; then \
-		echo "found existing $(VERSION) git tag"; \
-		exit 1; \
-	fi
+	./scripts/ensure_unique_version.sh "$(VERSION)"
 
 tag: check-tag
 	@echo "creating git tag $(VERSION)"
