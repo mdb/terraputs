@@ -23,9 +23,10 @@ var (
 )
 
 const (
-	stateDesc   string = "Required; the state JSON output by 'terraform show -json'"
-	headingDesc string = "Optional; the heading text for use in the printed markdown"
-	versionDesc string = "Print the current version and exit"
+	stateDesc      string = "Required; the state JSON output by 'terraform show -json'"
+	headingDesc    string = "Optional; the heading text for use in the printed markdown"
+	versionDesc    string = "Print the current version and exit"
+	defaultHeading string = "Outputs"
 )
 
 type data struct {
@@ -47,7 +48,7 @@ func dataType(output tfjson.StateOutput) string {
 
 func main() {
 	stateJSON := flag.String("state", "", stateDesc)
-	heading := flag.String("heading", "Outputs", headingDesc)
+	heading := flag.String("heading", defaultHeading, headingDesc)
 	flag.Parse()
 
 	args := flag.Args()
