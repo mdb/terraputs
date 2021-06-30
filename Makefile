@@ -54,10 +54,7 @@ testdata:
 				terraform show -json > show.json"
 
 check-tag:
-	@if git rev-parse $(VERSION) >/dev/null 2>&1; then \
-		echo "found existing $(VERSION) git tag"; \
-		exit 1; \
-	fi
+	./scripts/ensure_unique_version.sh "$(VERSION)"
 
 tag: check-tag
 	@echo "creating git tag $(VERSION)"
