@@ -8,9 +8,7 @@ A CLI to generate Terraform outputs documentation.
 
 Invoke `terraputs -state $(terraform show -json) > outputs.md` after each invocation of `terraform apply`. Commit `outputs.md` to source control or publish its contents to offer up-to-date Terraform state documentation.
 
-<p align="center">
-  <a href="https://asciinema.org/a/lFUVfdhes0i1cVbtFUvzwLMKd"><img width="600" src="demo.svg"></a>
-</p>
+<a style="display: block;" href="https://asciinema.org/a/lFUVfdhes0i1cVbtFUvzwLMKd"><img style="width: 500px;" src="demo.svg"></a>
 
 ## Usage
 
