@@ -1,11 +1,12 @@
 name: Manually triggered workflow
 
 on:
-  workflow_dispatch:
+  repository_dispatch:
+    types: do-something
     inputs:
       name:
         description: 'Person to greet'
-        required: true
+        required: false
         default: 'Mona the Octocat'
       home:
         description: 'location'
