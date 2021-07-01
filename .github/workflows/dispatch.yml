@@ -1,6 +1,7 @@
 name: Manually triggered workflow
 
-on: repository_dispatch
+on:
+  repository_dispatch:
 
 jobs:
   say_hello:
