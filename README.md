@@ -14,13 +14,14 @@ Basic usage:
 
 ```
 terraputs \
-  -state $(terraform show -json)
+  -state $(terraform show -json) \
+  -heading "Terraform Outputs"
 ```
 
 Example output:
 
 ```
-# Outputs
+# Terraform Outputs
 
 Terraform state outputs.
 
