@@ -1,7 +1,7 @@
 name: Manually triggered workflow
 
 on:
-  repository_dispatch:
+  [repository_dispatch]
 
 jobs:
   say_hello:
