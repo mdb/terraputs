@@ -2,7 +2,6 @@ name: Manually triggered workflow
 
 on:
   repository_dispatch:
-    types: do-something
 
 jobs:
   say_hello:
