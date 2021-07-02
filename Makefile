@@ -1,4 +1,4 @@
-VERSION = 0.0.1
+VERSION = 0.0.2
 SOURCE = ./...
 
 .PHONY: help \
@@ -64,3 +64,10 @@ tag: check-tag
 release: tools
 	goreleaser release \
 		--rm-dist
+
+demo:
+	svg-term \
+		--cast 423523 \
+		--out demo.svg \
+		--window \
+		--no-cursor

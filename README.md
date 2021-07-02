@@ -8,19 +8,22 @@ A CLI to generate Terraform outputs documentation.
 
 Invoke `terraputs -state $(terraform show -json) > outputs.md` after each invocation of `terraform apply`. Commit `outputs.md` to source control or publish its contents to offer up-to-date Terraform state documentation.
 
+<a style="display: block;" href="https://asciinema.org/a/lFUVfdhes0i1cVbtFUvzwLMKd"><img style="width: 500px;" src="demo.svg"></a>
+
 ## Usage
 
 Basic usage:
 
 ```
 terraputs \
-  -state $(terraform show -json)
+  -state $(terraform show -json) \
+  -heading "Terraform Outputs"
 ```
 
 Example output:
 
 ```
-# Outputs
+# Terraform Outputs
 
 Terraform state outputs.
 
