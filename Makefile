@@ -67,8 +67,7 @@ release: tools
 
 demo:
 	svg-term \
-		--cast 423329 \
+		--cast 423523 \
 		--out demo.svg \
 		--window \
-		--no-cursor \
-		--from=4500
+		--no-cursor
