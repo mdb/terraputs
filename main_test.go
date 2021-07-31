@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -88,13 +87,23 @@ func TestVersionArg(t *testing.T) {
 	}
 }
 
+// test cases:
+//
+// -state and -statefile together should error
+//
+// these should all be ok and functionally equivalent:
+//   terraputs -state "$(cat stateFile)"
+//   terraputs -statefile stateFile
+//   terraputs < stateFile
+//   cat stateFile | terraputs
+
 func TestTerraputs(t *testing.T) {
 	tests := []struct {
-		stateFile      string
-		heading        string
+		command        string
+		shouldError    bool
 		expectedOutput string
 	}{{
-		stateFile: "testdata/show.json",
+		command: `./terraputs -state $(cat testdata/show.json)`,
 		expectedOutput: `# Outputs
 
 Terraform state outputs.
@@ -109,8 +118,37 @@ Terraform state outputs.
 
 `,
 	}, {
-		stateFile: "testdata/show.json",
-		heading:   "foo",
+		command: `./terraputs < testdata/show.json`,
+		expectedOutput: `# Outputs
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+| a_basic_map | map[foo:bar number:42] | map[string]interface {}
+| a_list | [foo bar] | []interface {}
+| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
+| a_sensitive_value | sensitive; redacted | string
+| a_string | foo | string
+
+`,
+	}, {
+		command: `cat testdata/show.json | ./terraputs`,
+		expectedOutput: `# Outputs
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+| a_basic_map | map[foo:bar number:42] | map[string]interface {}
+| a_list | [foo bar] | []interface {}
+| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
+| a_sensitive_value | sensitive; redacted | string
+| a_string | foo | string
+
+`,
+	}, {
+		command: `./terraputs -state $(cat testdata/show.json) -heading foo`,
 		expectedOutput: `# foo
 
 Terraform state outputs.
@@ -127,35 +165,17 @@ Terraform state outputs.
 	}}
 
 	for _, test := range tests {
-		arg := fmt.Sprintf("-state $(cat %s)", test.stateFile)
-
-		if test.heading != "" {
-			arg = fmt.Sprintf("%s -heading %s", arg, test.heading)
-		}
-
-		stateJSON, err := ioutil.ReadFile(test.stateFile)
-		if err != nil {
-			t.Error(err)
-		}
-
-		t.Run(fmt.Sprintf("when terraputs is passed '%s'", arg), func(t *testing.T) {
-			args := []string{"-state", string(stateJSON)}
-
-			if test.heading != "" {
-				args = append(args, "-heading")
-				args = append(args, test.heading)
-			}
-
-			output, err := exec.Command("./terraputs", args...).CombinedOutput()
+		t.Run(fmt.Sprintf("when terraputs is passed '%q'", test.command), func(t *testing.T) {
+			output, err := exec.Command("/bin/sh", "-c", test.command).CombinedOutput()
 
 			if err != nil {
-				t.Errorf("expected '%s' not to error; got '%v'", arg, err)
+				t.Errorf("expected '%s' not to error; got '%v'", test.command, err)
 			}
 
 			if string(output) != test.expectedOutput {
 				t.Logf("expected output: \n%s", test.expectedOutput)
 				t.Logf("got output: \n%s", output)
-				t.Errorf("received unexpected output from '%s'", arg)
+				t.Errorf("received unexpected output from '%s'", test.command)
 			}
 		})
 	}

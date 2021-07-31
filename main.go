@@ -1,12 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"embed"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"html/template"
+	"io"
 	"os"
 	"strings"
 
@@ -23,7 +24,7 @@ var (
 )
 
 const (
-	stateDesc      string = "Required; the state JSON output by 'terraform show -json'"
+	stateDesc      string = "Optional; the state JSON output by 'terraform show -json', read from stdin if omitted"
 	headingDesc    string = "Optional; the heading text for use in the printed markdown"
 	versionDesc    string = "Print the current version and exit"
 	defaultHeading string = "Outputs"
@@ -57,12 +58,15 @@ func main() {
 		return
 	}
 
+	var stateReader io.Reader
 	if *stateJSON == "" {
-		panic(errors.New("Mising required '-state' value"))
+		stateReader = bufio.NewReader(os.Stdin)
+	} else {
+		stateReader = strings.NewReader(*stateJSON)
 	}
 
 	var state *tfjson.State
-	if err := json.NewDecoder(strings.NewReader(*stateJSON)).Decode(&state); err != nil {
+	if err := json.NewDecoder(stateReader).Decode(&state); err != nil {
 		panic(err)
 	}
 
