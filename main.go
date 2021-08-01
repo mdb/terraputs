@@ -58,10 +58,8 @@ func main() {
 		return
 	}
 
-	var stateReader io.Reader
-	if *stateJSON == "" {
-		stateReader = bufio.NewReader(os.Stdin)
-	} else {
+	var stateReader io.Reader = bufio.NewReader(os.Stdin)
+	if *stateJSON != "" {
 		stateReader = strings.NewReader(*stateJSON)
 	}
 

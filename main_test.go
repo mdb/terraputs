@@ -87,13 +87,8 @@ func TestVersionArg(t *testing.T) {
 	}
 }
 
-// test cases:
-//
-// -state and -statefile together should error
-//
 // these should all be ok and functionally equivalent:
 //   terraputs -state "$(cat stateFile)"
-//   terraputs -statefile stateFile
 //   terraputs < stateFile
 //   cat stateFile | terraputs
 
