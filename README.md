@@ -6,18 +6,29 @@ A CLI to generate Terraform outputs documentation.
 
 ## What's the use case?
 
-Invoke `terraputs -state $(terraform show -json) > outputs.md` after each invocation of `terraform apply`. Commit `outputs.md` to source control or publish its contents to offer up-to-date Terraform state documentation.
+`terraputs` analyzes the contents of a [terraform state](https://www.terraform.io/docs/language/state/index.html)
+file and generates Markdown documentation from its [outputs](https://www.terraform.io/docs/language/values/outputs.html).
+
+A common workflow might execute `terraputs -state $(terraform show -json) > outputs.md` after each
+invocation of `terraform apply`, then commit `outputs.md` to source control or publish its contents to
+offer up-to-date documentation about resources managed by a Terraform project.
 
 <a style="display: block;" href="https://asciinema.org/a/lFUVfdhes0i1cVbtFUvzwLMKd"><img style="width: 500px;" src="demo.svg"></a>
 
 ## Usage
 
-Basic usage:
+A few typical usage examples:
 
 ```
-terraputs \
-  -state $(terraform show -json) \
-  -heading "Terraform Outputs"
+# terraputs can accept arbitrary state as a string argument on the command line:
+terraputs -state "$(terraform show -json)" -heading "Terraform Outputs"
+
+# or directly from standard input, if the -state option is omitted. to read
+# directly from terraform, consider:
+terraform show -json | terraputs -heading "Terraform Outputs"
+
+# or read a tfstate file from the filesystem:
+terraputs < terraform.tfstate
 ```
 
 Example output:
@@ -44,7 +55,7 @@ Usage of terraputs:
   -heading string
         Optional; the heading text for use in the printed markdown (default "Outputs")
   -state string
-        Required; the state JSON output by 'terraform show -json'
+        Optional; the state JSON output by 'terraform show -json', read from stdin if omitted
 ```
 
 ## Example output table formatted by GitHub
