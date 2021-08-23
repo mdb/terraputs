@@ -156,6 +156,26 @@ Terraform state outputs.
 | a_string | foo | string
 
 `,
+	}, {
+		command: `./terraputs -state $(cat testdata/nooutputs/show.json) -heading foo`,
+		expectedOutput: `# foo
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+
+`,
+	}, {
+		command: `./terraputs -state $(cat testdata/emptyconfig/show.json) -heading foo`,
+		expectedOutput: `# foo
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+
+`,
 	}}
 
 	for _, test := range tests {

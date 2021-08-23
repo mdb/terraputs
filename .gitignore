@@ -1,2 +1,4 @@
 dist
-testdata/terraform.tfstate.backup
+testdata/**/terraform.tfstate.backup
+testdata/**/.terraform*
+testdata/**/greeting.txt

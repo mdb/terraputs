@@ -76,8 +76,13 @@ func main() {
 		panic(err)
 	}
 
+	outputs := map[string]*tfjson.StateOutput{}
+	if state.Values != nil {
+		outputs = state.Values.Outputs
+	}
+
 	err = t.Execute(os.Stdout, data{
-		Outputs: state.Values.Outputs,
+		Outputs: outputs,
 		Heading: *heading,
 	})
 	if err != nil {

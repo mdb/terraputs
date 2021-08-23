@@ -1,4 +1,4 @@
-VERSION = 0.0.4
+VERSION = 0.0.5
 SOURCE = ./...
 
 .PHONY: help \
@@ -6,7 +6,8 @@ SOURCE = ./...
 	vet \
 	test-fmt \
 	test \
-	testdata
+	testdata \
+	clean
 
 .DEFAULT_GOAL := build
 
@@ -20,6 +21,7 @@ help:
 	# check-tag: check if a $(VERSION) git tag already exists
 	# tag:       create a $(VERSION) git tag
 	# release:   build and publish a terraputs GitHub release
+	# clean:     remove testdata fixtures and compiled artifacts
 
 tools:
 	echo "Installing tools from tools.go"
@@ -40,18 +42,24 @@ test-fmt:
 test: vet test-fmt
 	go test -cover $(SOURCE) -count=1
 
-testdata:
+define generate-testdata
 	docker run \
 		--interactive \
 		--tty \
 		--volume $(shell pwd):/src \
-		--workdir /src/testdata \
+		--workdir /src/testdata/$(1) \
 		--entrypoint /bin/sh \
 		hashicorp/terraform \
 			-c \
 				"terraform init && \
 				terraform apply -auto-approve && \
 				terraform show -json > show.json"
+endef
+
+testdata:
+	$(call generate-testdata,basic)
+	$(call generate-testdata,nooutputs)
+	$(call generate-testdata,emptyconfig)
 
 check-tag:
 	./scripts/ensure_unique_version.sh "$(VERSION)"
@@ -71,3 +79,15 @@ demo:
 		--out demo.svg \
 		--window \
 		--no-cursor
+
+define clean-testdata
+	rm -rf testdata/$(1)/.terraform*
+	rm -rf testdata/$(1)/terraform.tfstate.backup
+	rm -rf testdata/$(1)/greeting.txt
+endef
+
+clean:
+	$(call clean-testdata,basic)
+	$(call clean-testdata,nooutputs)
+	$(call clean-testdata,emptyconfig)
+	rm -rf dist
