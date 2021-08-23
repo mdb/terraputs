@@ -87,18 +87,17 @@ func TestVersionArg(t *testing.T) {
 	}
 }
 
-// these should all be ok and functionally equivalent:
+// These should all be ok and functionally equivalent:
 //   terraputs -state "$(cat stateFile)"
 //   terraputs < stateFile
 //   cat stateFile | terraputs
-
 func TestTerraputs(t *testing.T) {
 	tests := []struct {
 		command        string
 		shouldError    bool
 		expectedOutput string
 	}{{
-		command: `./terraputs -state $(cat testdata/show.json)`,
+		command: `./terraputs -state $(cat testdata/basic/show.json)`,
 		expectedOutput: `# Outputs
 
 Terraform state outputs.
@@ -113,7 +112,7 @@ Terraform state outputs.
 
 `,
 	}, {
-		command: `./terraputs < testdata/show.json`,
+		command: `./terraputs < testdata/basic/show.json`,
 		expectedOutput: `# Outputs
 
 Terraform state outputs.
@@ -128,7 +127,7 @@ Terraform state outputs.
 
 `,
 	}, {
-		command: `cat testdata/show.json | ./terraputs`,
+		command: `cat testdata/basic/show.json | ./terraputs`,
 		expectedOutput: `# Outputs
 
 Terraform state outputs.
@@ -143,7 +142,7 @@ Terraform state outputs.
 
 `,
 	}, {
-		command: `./terraputs -state $(cat testdata/show.json) -heading foo`,
+		command: `./terraputs -state $(cat testdata/basic/show.json) -heading foo`,
 		expectedOutput: `# foo
 
 Terraform state outputs.
