@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -32,6 +33,8 @@ func TestHelpFlag(t *testing.T) {
 	help := []string{
 		"-state string",
 		stateDesc,
+		"-state-file string",
+		stateFileDesc,
 		"-heading string",
 		headingDesc,
 	}
@@ -94,7 +97,7 @@ func TestVersionArg(t *testing.T) {
 func TestTerraputs(t *testing.T) {
 	tests := []struct {
 		command        string
-		shouldError    bool
+		expectedError  error
 		expectedOutput string
 	}{{
 		command: `./terraputs -state $(cat testdata/basic/show.json)`,
@@ -176,14 +179,64 @@ Terraform state outputs.
 | --- | --- | --- |
 
 `,
+	}, {
+		command: `./terraputs -state-file testdata/basic/show.json -heading foo`,
+		expectedOutput: `# foo
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+| a_basic_map | map[foo:bar number:42] | map[string]interface {}
+| a_list | [foo bar] | []interface {}
+| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
+| a_sensitive_value | sensitive; redacted | string
+| a_string | foo | string
+
+`,
+	}, {
+		command: `./terraputs -state-file testdata/nooutputs/show.json -heading foo`,
+		expectedOutput: `# foo
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+
+`,
+	}, {
+		command: `./terraputs -state-file testdata/emptyconfig/show.json -heading foo`,
+		expectedOutput: `# foo
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+
+`,
+	}, {
+		command:        `./terraputs -state-file testdata/basic/i-do-not-exist.json -heading foo`,
+		expectedError:  errors.New("exit status 1"),
+		expectedOutput: "open testdata/basic/i-do-not-exist.json: no such file or directory",
+	}, {
+		command:        `./terraputs -state $(cat testdata/basic/show.json) -state-file testdata/basic/show.json -heading foo`,
+		expectedError:  errors.New("exit status 1"),
+		expectedOutput: "'-state' and '-state-file' are mutually exclusive; specify just one",
 	}}
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("when terraputs is passed '%q'", test.command), func(t *testing.T) {
 			output, err := exec.Command("/bin/sh", "-c", test.command).CombinedOutput()
-
-			if err != nil {
+			if err != nil && test.expectedError == nil {
 				t.Errorf("expected '%s' not to error; got '%v'", test.command, err)
+			}
+
+			if test.expectedError != nil && err == nil {
+				t.Errorf("expected error '%s'; got '%v'", test.expectedError.Error(), err)
+			}
+
+			if test.expectedError != nil && err != nil && test.expectedError.Error() != err.Error() {
+				t.Errorf("expected error '%s'; got '%v'", test.expectedError.Error(), err.Error())
 			}
 
 			if string(output) != test.expectedOutput {

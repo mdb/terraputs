@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"embed"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"html/template"
@@ -25,6 +26,7 @@ var (
 
 const (
 	stateDesc      string = "Optional; the state JSON output by 'terraform show -json', read from stdin if omitted"
+	stateFileDesc  string = "Optional; the path to a local Terraform state JSON file"
 	headingDesc    string = "Optional; the heading text for use in the printed markdown"
 	versionDesc    string = "Print the current version and exit"
 	defaultHeading string = "Outputs"
@@ -49,6 +51,7 @@ func dataType(output tfjson.StateOutput) string {
 
 func main() {
 	stateJSON := flag.String("state", "", stateDesc)
+	stateFile := flag.String("state-file", "", stateFileDesc)
 	heading := flag.String("heading", defaultHeading, headingDesc)
 	flag.Parse()
 
@@ -63,9 +66,22 @@ func main() {
 		stateReader = strings.NewReader(*stateJSON)
 	}
 
+	if *stateJSON != "" && *stateFile != "" {
+		exit(errors.New("'-state' and '-state-file' are mutually exclusive; specify just one"))
+	}
+
+	if *stateFile != "" {
+		b, err := os.ReadFile(*stateFile)
+		if err != nil {
+			exit(err)
+		}
+
+		stateReader = strings.NewReader(string(b))
+	}
+
 	var state *tfjson.State
 	if err := json.NewDecoder(stateReader).Decode(&state); err != nil {
-		panic(err)
+		exit(err)
 	}
 
 	t, err := template.New("markdown.tmpl").Funcs(template.FuncMap{
@@ -73,7 +89,7 @@ func main() {
 		"dataType": dataType,
 	}).ParseFS(templates, "templates/markdown.tmpl")
 	if err != nil {
-		panic(err)
+		exit(err)
 	}
 
 	outputs := map[string]*tfjson.StateOutput{}
@@ -86,6 +102,11 @@ func main() {
 		Heading: *heading,
 	})
 	if err != nil {
-		panic(err)
+		exit(err)
 	}
+}
+
+func exit(err error) {
+	fmt.Fprintf(os.Stderr, "%s", err.Error())
+	os.Exit(1)
 }
