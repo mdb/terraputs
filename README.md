@@ -56,6 +56,8 @@ Usage of terraputs:
         Optional; the heading text for use in the printed markdown (default "Outputs")
   -state string
         Optional; the state JSON output by 'terraform show -json', read from stdin if omitted
+  -state-file string
+        Optional; the path to a local file containing 'terraform show -json' output
 ```
 
 ## Example output table formatted by GitHub
