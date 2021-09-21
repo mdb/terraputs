@@ -20,6 +20,8 @@ offer up-to-date documentation about resources managed by a Terraform project.
 ```
 terraputs -h
 Usage of terraputs:
+  -description string
+        Optional; a contextual description preceding the outputs. (default "Terraform state outputs.")
   -heading string
         Optional; the heading text for use in the printed output. (default "Outputs")
   -output string
