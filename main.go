@@ -53,7 +53,10 @@ func prettyPrintValue(output tfjson.StateOutput) template.HTML {
 		return template.HTML(sensitive)
 	}
 
-	pretty, _ := json.MarshalIndent(output.Value, "", "  ")
+	pretty, err := json.MarshalIndent(output.Value, "", "  ")
+	if err != nil {
+		exit(err)
+	}
 
 	return template.HTML(string(pretty))
 }
