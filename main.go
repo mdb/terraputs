@@ -133,7 +133,7 @@ func getTemplatePath(output string) (string, error) {
 	case "md":
 		return "templates/markdown.tmpl", nil
 	default:
-		return "", fmt.Errorf("%s is not a supported output format. Supported formats: md (default), html", output)
+		return "", fmt.Errorf("'%s' is not a supported output format. Supported formats: 'md' (default), 'html'", output)
 	}
 }
 

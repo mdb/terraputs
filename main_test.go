@@ -281,6 +281,10 @@ Terraform state outputs.
 		command:        `./terraputs -state $(cat testdata/basic/show.json) -state-file testdata/basic/show.json -heading foo`,
 		expectedError:  errors.New("exit status 1"),
 		expectedOutput: "'-state' and '-state-file' are mutually exclusive; specify just one",
+	}, {
+		command:        `./terraputs -state $(cat testdata/basic/show.json) -output foo`,
+		expectedError:  errors.New("exit status 1"),
+		expectedOutput: "'foo' is not a supported output format. Supported formats: 'md' (default), 'html'",
 	}}
 
 	for _, test := range tests {
