@@ -31,6 +31,8 @@ terraform show -json | terraputs -heading "Terraform Outputs"
 terraputs < terraform.tfstate
 ```
 
+### Results examples
+
 <details>
 
 <summary>Example markdown output</summary>
