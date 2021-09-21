@@ -206,10 +206,3 @@ Usage of terraputs:
   -state-file string
         Optional; the path to a local file containing 'terraform show -json' output
 ```
-
-## TODO
-
-* provide the ability to pass a custom template
-* improve the formatting and readability of lists and maps
-* create a GitHub Action
-* publish an OCI image
