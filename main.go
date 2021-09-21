@@ -32,6 +32,7 @@ const (
 	versionDesc    string = "Print the current version and exit"
 	defaultHeading string = "Outputs"
 	defaultOutput  string = "md"
+	sensitive      string = "sensitive; redacted"
 )
 
 type data struct {
@@ -41,10 +42,20 @@ type data struct {
 
 func value(output tfjson.StateOutput) string {
 	if output.Sensitive {
-		return "sensitive; redacted"
+		return sensitive
 	}
 
 	return fmt.Sprintf("%v", output.Value)
+}
+
+func prettyPrintValue(output tfjson.StateOutput) template.HTML {
+	if output.Sensitive {
+		return template.HTML(sensitive)
+	}
+
+	pretty, _ := json.MarshalIndent(output.Value, "", "  ")
+
+	return template.HTML(string(pretty))
 }
 
 func dataType(output tfjson.StateOutput) string {
@@ -93,8 +104,9 @@ func main() {
 	}
 
 	t, err := template.New(strings.Split(tmpl, "/")[1]).Funcs(template.FuncMap{
-		"value":    value,
-		"dataType": dataType,
+		"value":       value,
+		"dataType":    dataType,
+		"prettyPrint": prettyPrintValue,
 	}).ParseFS(templates, tmpl)
 	if err != nil {
 		exit(err)

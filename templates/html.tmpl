@@ -9,7 +9,7 @@
 {{ range $key, $value := .Outputs }}
   <tr>
     <td>{{ $key }}</td>
-    <td>{{ value $value }}</td>
+    <td><pre>{{ prettyPrint $value }}</pre></td>
     <td>{{ dataType $value }}</td>
   </tr>
 {{ end }}

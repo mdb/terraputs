@@ -209,31 +209,44 @@ Terraform state outputs.
 
   <tr>
     <td>a_basic_map</td>
-    <td>map[foo:bar number:42]</td>
+    <td><pre>{
+  "foo": "bar",
+  "number": 42
+}</pre></td>
     <td>map[string]interface {}</td>
   </tr>
 
   <tr>
     <td>a_list</td>
-    <td>[foo bar]</td>
+    <td><pre>[
+  "foo",
+  "bar"
+]</pre></td>
     <td>[]interface {}</td>
   </tr>
 
   <tr>
     <td>a_nested_map</td>
-    <td>map[baz:map[bar:baz id:123] foo:bar number:42]</td>
+    <td><pre>{
+  "baz": {
+    "bar": "baz",
+    "id": "123"
+  },
+  "foo": "bar",
+  "number": 42
+}</pre></td>
     <td>map[string]interface {}</td>
   </tr>
 
   <tr>
     <td>a_sensitive_value</td>
-    <td>sensitive; redacted</td>
+    <td><pre>sensitive; redacted</pre></td>
     <td>string</td>
   </tr>
 
   <tr>
     <td>a_string</td>
-    <td>foo</td>
+    <td><pre>"foo"</pre></td>
     <td>string</td>
   </tr>
 
