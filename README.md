@@ -7,7 +7,7 @@ A CLI to generate Terraform outputs documentation.
 ## What's the use case?
 
 `terraputs` analyzes the contents of a [terraform state](https://www.terraform.io/docs/language/state/index.html)
-file and generates Markdown documentation from its [outputs](https://www.terraform.io/docs/language/values/outputs.html).
+file and generates Markdown or HTML documentation from its [outputs](https://www.terraform.io/docs/language/values/outputs.html).
 
 A common workflow might execute `terraputs -state $(terraform show -json) > outputs.md` after each
 invocation of `terraform apply`, then commit `outputs.md` to source control or publish its contents to
@@ -16,6 +16,19 @@ offer up-to-date documentation about resources managed by a Terraform project.
 <a style="display: block;" href="https://asciinema.org/a/lFUVfdhes0i1cVbtFUvzwLMKd"><img style="width: 500px;" src="demo.svg"></a>
 
 ## Usage
+
+```
+terraputs -h
+Usage of terraputs:
+  -heading string
+        Optional; the heading text for use in the printed output. (default "Outputs")
+  -output string
+        Optional; the output format. Supported values: md, html. (default "md")
+  -state string
+        Optional; the state JSON output by 'terraform show -json'. Read from stdin if omitted
+  -state-file string
+        Optional; the path to a local file containing 'terraform show -json' output
+```
 
 A few typical usage examples:
 
@@ -31,7 +44,11 @@ terraform show -json | terraputs -heading "Terraform Outputs"
 terraputs < terraform.tfstate
 ```
 
-Example output:
+### Results examples
+
+<details>
+
+<summary>Example markdown output</summary>
 
 ```
 # Terraform Outputs
@@ -47,20 +64,15 @@ Terraform state outputs.
 | a_string | foo | string
 ```
 
-## More options
+</details>
 
-```
-terraputs -h
-Usage of terraputs:
-  -heading string
-        Optional; the heading text for use in the printed markdown (default "Outputs")
-  -state string
-        Optional; the state JSON output by 'terraform show -json', read from stdin if omitted
-  -state-file string
-        Optional; the path to a local file containing 'terraform show -json' output
-```
+<details>
 
-## Example output table formatted by GitHub
+<summary>Markdown output rendered via GitHub-flavored markdown</summary>
+
+# Terraform Outputs
+
+Terraform state outputs.
 
 | Output | Value | Type
 | --- | --- | --- |
@@ -70,10 +82,125 @@ Usage of terraputs:
 | a_sensitive_value | sensitive; redacted | string
 | a_string | foo | string
 
-## TODO
+</details>
 
-* provide the ability to pass a custom template
-* improve the formatting and readability of lists and maps
-* create automated releases
-* create a GitHub Action
-* publish an OCI image
+<details>
+
+<summary>Example HTML output</summary>
+
+```html
+<h2>Outputs</h2>
+<p>Terraform state outputs.</p>
+<table>
+  <tr>
+    <th>Output</th>
+    <th>Value</th>
+    <th>Type</th>
+  </tr>
+
+  <tr>
+    <td>a_basic_map</td>
+    <td><pre>{
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_list</td>
+    <td><pre>[
+  "foo",
+  "bar"
+]</pre></td>
+    <td>[]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_nested_map</td>
+    <td><pre>{
+  "baz": {
+    "bar": "baz",
+    "id": "123"
+  },
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_sensitive_value</td>
+    <td><pre>sensitive; redacted</pre></td>
+    <td>string</td>
+  </tr>
+
+  <tr>
+    <td>a_string</td>
+    <td><pre>"foo"</pre></td>
+    <td>string</td>
+  </tr>
+
+</table>
+```
+
+</details>
+
+<details>
+<summary>HTML output rendered via GitHub-flavored markdown</summary>
+
+<h2>Outputs</h2>
+<p>Terraform state outputs.</p>
+<table>
+  <tr>
+    <th>Output</th>
+    <th>Value</th>
+    <th>Type</th>
+  </tr>
+
+  <tr>
+    <td>a_basic_map</td>
+    <td><pre>{
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_list</td>
+    <td><pre>[
+  "foo",
+  "bar"
+]</pre></td>
+    <td>[]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_nested_map</td>
+    <td><pre>{
+  "baz": {
+    "bar": "baz",
+    "id": "123"
+  },
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_sensitive_value</td>
+    <td><pre>sensitive; redacted</pre></td>
+    <td>string</td>
+  </tr>
+
+  <tr>
+    <td>a_string</td>
+    <td><pre>"foo"</pre></td>
+    <td>string</td>
+  </tr>
+
+</table>
+
+</details>

@@ -37,6 +37,8 @@ func TestHelpFlag(t *testing.T) {
 		stateFileDesc,
 		"-heading string",
 		headingDesc,
+		"-output string",
+		outputDesc,
 	}
 
 	tests := []struct {
@@ -195,6 +197,63 @@ Terraform state outputs.
 
 `,
 	}, {
+		command: `./terraputs -state-file testdata/basic/show.json -heading foo -output html`,
+		expectedOutput: `<h2>foo</h2>
+<p>Terraform state outputs.</p>
+<table>
+  <tr>
+    <th>Output</th>
+    <th>Value</th>
+    <th>Type</th>
+  </tr>
+
+  <tr>
+    <td>a_basic_map</td>
+    <td><pre>{
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_list</td>
+    <td><pre>[
+  "foo",
+  "bar"
+]</pre></td>
+    <td>[]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_nested_map</td>
+    <td><pre>{
+  "baz": {
+    "bar": "baz",
+    "id": "123"
+  },
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_sensitive_value</td>
+    <td><pre>sensitive; redacted</pre></td>
+    <td>string</td>
+  </tr>
+
+  <tr>
+    <td>a_string</td>
+    <td><pre>"foo"</pre></td>
+    <td>string</td>
+  </tr>
+
+</table>
+`,
+	}, {
+
 		command: `./terraputs -state-file testdata/nooutputs/show.json -heading foo`,
 		expectedOutput: `# foo
 
@@ -222,6 +281,10 @@ Terraform state outputs.
 		command:        `./terraputs -state $(cat testdata/basic/show.json) -state-file testdata/basic/show.json -heading foo`,
 		expectedError:  errors.New("exit status 1"),
 		expectedOutput: "'-state' and '-state-file' are mutually exclusive; specify just one",
+	}, {
+		command:        `./terraputs -state $(cat testdata/basic/show.json) -output foo`,
+		expectedError:  errors.New("exit status 1"),
+		expectedOutput: "'foo' is not a supported output format. Supported formats: 'md' (default), 'html'",
 	}}
 
 	for _, test := range tests {

@@ -1,0 +1,16 @@
+<h2>{{ .Heading }}</h2>
+<p>Terraform state outputs.</p>
+<table>
+  <tr>
+    <th>Output</th>
+    <th>Value</th>
+    <th>Type</th>
+  </tr>
+{{ range $key, $value := .Outputs }}
+  <tr>
+    <td>{{ $key }}</td>
+    <td><pre>{{ prettyPrint $value }}</pre></td>
+    <td>{{ dataType $value }}</td>
+  </tr>
+{{ end }}
+</table>
