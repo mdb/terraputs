@@ -31,7 +31,9 @@ terraform show -json | terraputs -heading "Terraform Outputs"
 terraputs < terraform.tfstate
 ```
 
-Example markdown output:
+<details>
+
+<summary>Example markdown output</summary>
 
 ```
 # Terraform Outputs
@@ -47,6 +49,147 @@ Terraform state outputs.
 | a_string | foo | string
 ```
 
+</details>
+
+<details>
+
+<summary>Markdown output rendered via GitHub-flavored markdown</summary>
+
+# Terraform Outputs
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+| a_basic_map | map[foo:bar number:42] | map[string]interface {}
+| a_list | [foo bar] | []interface {}
+| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
+| a_sensitive_value | sensitive; redacted | string
+| a_string | foo | string
+
+</details>
+
+<details>
+
+<summary>Example HTML output</summary>
+
+```html
+<h2>Outputs</h2>
+<p>Terraform state outputs.</p>
+<table>
+  <tr>
+    <th>Output</th>
+    <th>Value</th>
+    <th>Type</th>
+  </tr>
+
+  <tr>
+    <td>a_basic_map</td>
+    <td><pre>{
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_list</td>
+    <td><pre>[
+  "foo",
+  "bar"
+]</pre></td>
+    <td>[]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_nested_map</td>
+    <td><pre>{
+  "baz": {
+    "bar": "baz",
+    "id": "123"
+  },
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_sensitive_value</td>
+    <td><pre>sensitive; redacted</pre></td>
+    <td>string</td>
+  </tr>
+
+  <tr>
+    <td>a_string</td>
+    <td><pre>"foo"</pre></td>
+    <td>string</td>
+  </tr>
+
+</table>
+```
+
+</details>
+
+<details>
+<summary>HTML output rendered via GitHub-flavored markdown</summary>
+
+<h2>Outputs</h2>
+<p>Terraform state outputs.</p>
+<table>
+  <tr>
+    <th>Output</th>
+    <th>Value</th>
+    <th>Type</th>
+  </tr>
+
+  <tr>
+    <td>a_basic_map</td>
+    <td><pre>{
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_list</td>
+    <td><pre>[
+  "foo",
+  "bar"
+]</pre></td>
+    <td>[]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_nested_map</td>
+    <td><pre>{
+  "baz": {
+    "bar": "baz",
+    "id": "123"
+  },
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_sensitive_value</td>
+    <td><pre>sensitive; redacted</pre></td>
+    <td>string</td>
+  </tr>
+
+  <tr>
+    <td>a_string</td>
+    <td><pre>"foo"</pre></td>
+    <td>string</td>
+  </tr>
+
+</table>
+
+</details>
+
 ## More options
 
 ```
@@ -61,16 +204,6 @@ Usage of terraputs:
   -state-file string
         Optional; the path to a local file containing 'terraform show -json' output
 ```
-
-## Example markdown output table formatted by GitHub
-
-| Output | Value | Type
-| --- | --- | --- |
-| a_basic_map | map[foo:bar number:42] | map[string]interface {}
-| a_list | [foo bar] | []interface {}
-| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
-| a_sensitive_value | sensitive; redacted | string
-| a_string | foo | string
 
 ## TODO
 
