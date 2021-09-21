@@ -17,6 +17,19 @@ offer up-to-date documentation about resources managed by a Terraform project.
 
 ## Usage
 
+```
+terraputs -h
+Usage of terraputs:
+  -heading string
+        Optional; the heading text for use in the printed output. (default "Outputs")
+  -output string
+        Optional; the output format. Supported values: md, html. (default "md")
+  -state string
+        Optional; the state JSON output by 'terraform show -json'. Read from stdin if omitted
+  -state-file string
+        Optional; the path to a local file containing 'terraform show -json' output
+```
+
 A few typical usage examples:
 
 ```
@@ -191,18 +204,3 @@ Terraform state outputs.
 </table>
 
 </details>
-
-## More options
-
-```
-terraputs -h
-Usage of terraputs:
-  -heading string
-        Optional; the heading text for use in the printed output. Default: Outputs (default "Outputs")
-  -output string
-        Optional; the output format. Supported values: md, html. Default: md (default "md")
-  -state string
-        Optional; the state JSON output by 'terraform show -json'. Read from stdin if omitted
-  -state-file string
-        Optional; the path to a local file containing 'terraform show -json' output
-```
