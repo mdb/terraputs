@@ -25,11 +25,13 @@ var (
 )
 
 const (
-	stateDesc      string = "Optional; the state JSON output by 'terraform show -json', read from stdin if omitted"
+	stateDesc      string = "Optional; the state JSON output by 'terraform show -json'. Read from stdin if omitted"
 	stateFileDesc  string = "Optional; the path to a local file containing 'terraform show -json' output"
-	headingDesc    string = "Optional; the heading text for use in the printed markdown"
+	headingDesc    string = "Optional; the heading text for use in the printed output. Default: Outputs"
+	outputDesc     string = "Optional; the output format. Supported values: md, html. Default: md"
 	versionDesc    string = "Print the current version and exit"
 	defaultHeading string = "Outputs"
+	defaultOutput  string = "md"
 )
 
 type data struct {
@@ -53,6 +55,7 @@ func main() {
 	stateJSON := flag.String("state", "", stateDesc)
 	stateFile := flag.String("state-file", "", stateFileDesc)
 	heading := flag.String("heading", defaultHeading, headingDesc)
+	output := flag.String("output", defaultOutput, outputDesc)
 	flag.Parse()
 
 	args := flag.Args()
@@ -84,10 +87,15 @@ func main() {
 		exit(err)
 	}
 
-	t, err := template.New("markdown.tmpl").Funcs(template.FuncMap{
+	tmpl, err := getTemplatePath(*output)
+	if err != nil {
+		exit(err)
+	}
+
+	t, err := template.New(strings.Split(tmpl, "/")[1]).Funcs(template.FuncMap{
 		"value":    value,
 		"dataType": dataType,
-	}).ParseFS(templates, "templates/markdown.tmpl")
+	}).ParseFS(templates, tmpl)
 	if err != nil {
 		exit(err)
 	}
@@ -103,6 +111,17 @@ func main() {
 	})
 	if err != nil {
 		exit(err)
+	}
+}
+
+func getTemplatePath(output string) (string, error) {
+	switch output {
+	case "html":
+		return "templates/html.tmpl", nil
+	case "md":
+		return "templates/markdown.tmpl", nil
+	default:
+		return "", fmt.Errorf("%s is not a supported output format. Supported formats: md (default), html", output)
 	}
 }
 

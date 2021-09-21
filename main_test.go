@@ -37,6 +37,8 @@ func TestHelpFlag(t *testing.T) {
 		stateFileDesc,
 		"-heading string",
 		headingDesc,
+		"-output string",
+		outputDesc,
 	}
 
 	tests := []struct {
@@ -195,6 +197,50 @@ Terraform state outputs.
 
 `,
 	}, {
+		command: `./terraputs -state-file testdata/basic/show.json -heading foo -output html`,
+		expectedOutput: `<h2>foo</h2>
+<p>Terraform state outputs.</p>
+<table>
+  <tr>
+    <th>Output</th>
+    <th>Value</th>
+    <th>Type</th>
+  </tr>
+
+  <tr>
+    <td>a_basic_map</td>
+    <td>map[foo:bar number:42]</td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_list</td>
+    <td>[foo bar]</td>
+    <td>[]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_nested_map</td>
+    <td>map[baz:map[bar:baz id:123] foo:bar number:42]</td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_sensitive_value</td>
+    <td>sensitive; redacted</td>
+    <td>string</td>
+  </tr>
+
+  <tr>
+    <td>a_string</td>
+    <td>foo</td>
+    <td>string</td>
+  </tr>
+
+</table>
+`,
+	}, {
+
 		command: `./terraputs -state-file testdata/nooutputs/show.json -heading foo`,
 		expectedOutput: `# foo
 
