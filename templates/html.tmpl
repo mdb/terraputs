@@ -6,11 +6,11 @@
     <th>Value</th>
     <th>Type</th>
   </tr>
-  {{ range $key, $value := .Outputs }}
+{{ range $key, $value := .Outputs }}
   <tr>
     <td>{{ $key }}</td>
     <td>{{ value $value }}</td>
     <td>{{ dataType $value }}</td>
   </tr>
-  {{ end }}
+{{ end }}
 </table>
