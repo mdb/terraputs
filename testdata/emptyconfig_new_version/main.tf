@@ -5,14 +5,3 @@
 # target to generate terraform.tfstate and
 # show.json state state files from this
 # configuration.
-
-data "template_file" "greeting" {
-  template = <<-EOT
-  ${var.greeting}
-  EOT
-}
-
-resource "local_file" "greeting" {
-  content  = data.template_file.greeting.rendered
-  filename = "${path.module}/greeting.txt"
-}
