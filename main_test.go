@@ -103,7 +103,7 @@ func TestTerraputs(t *testing.T) {
 		expectedOutput string
 	}{{
 		command: `./terraputs -state $(cat testdata/basic/show.json)`,
-		expectedOutput: `# Outputs
+		expectedOutput: `## Outputs
 
 Terraform state outputs.
 
@@ -118,7 +118,7 @@ Terraform state outputs.
 `,
 	}, {
 		command: `./terraputs < testdata/basic/show.json`,
-		expectedOutput: `# Outputs
+		expectedOutput: `## Outputs
 
 Terraform state outputs.
 
@@ -133,7 +133,7 @@ Terraform state outputs.
 `,
 	}, {
 		command: `cat testdata/basic/show.json | ./terraputs`,
-		expectedOutput: `# Outputs
+		expectedOutput: `## Outputs
 
 Terraform state outputs.
 
@@ -148,7 +148,7 @@ Terraform state outputs.
 `,
 	}, {
 		command: `./terraputs -state $(cat testdata/basic/show.json) -heading foo`,
-		expectedOutput: `# foo
+		expectedOutput: `## foo
 
 Terraform state outputs.
 
@@ -162,8 +162,23 @@ Terraform state outputs.
 
 `,
 	}, {
+		command: `./terraputs -state $(cat testdata/basic/show.json) -description "A custom description."`,
+		expectedOutput: `## Outputs
+
+A custom description.
+
+| Output | Value | Type
+| --- | --- | --- |
+| a_basic_map | map[foo:bar number:42] | map[string]interface {}
+| a_list | [foo bar] | []interface {}
+| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
+| a_sensitive_value | sensitive; redacted | string
+| a_string | foo | string
+
+`,
+	}, {
 		command: `./terraputs -state $(cat testdata/nooutputs/show.json) -heading foo`,
-		expectedOutput: `# foo
+		expectedOutput: `## foo
 
 Terraform state outputs.
 
@@ -173,7 +188,7 @@ Terraform state outputs.
 `,
 	}, {
 		command: `./terraputs -state $(cat testdata/emptyconfig/show.json) -heading foo`,
-		expectedOutput: `# foo
+		expectedOutput: `## foo
 
 Terraform state outputs.
 
@@ -183,7 +198,7 @@ Terraform state outputs.
 `,
 	}, {
 		command: `./terraputs -state-file testdata/basic/show.json -heading foo`,
-		expectedOutput: `# foo
+		expectedOutput: `## foo
 
 Terraform state outputs.
 
@@ -253,9 +268,64 @@ Terraform state outputs.
 </table>
 `,
 	}, {
+		command: `./terraputs -state-file testdata/basic/show.json -description "A custom description." -output html`,
+		expectedOutput: `<h2>Outputs</h2>
+<p>A custom description.</p>
+<table>
+  <tr>
+    <th>Output</th>
+    <th>Value</th>
+    <th>Type</th>
+  </tr>
 
+  <tr>
+    <td>a_basic_map</td>
+    <td><pre>{
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_list</td>
+    <td><pre>[
+  "foo",
+  "bar"
+]</pre></td>
+    <td>[]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_nested_map</td>
+    <td><pre>{
+  "baz": {
+    "bar": "baz",
+    "id": "123"
+  },
+  "foo": "bar",
+  "number": 42
+}</pre></td>
+    <td>map[string]interface {}</td>
+  </tr>
+
+  <tr>
+    <td>a_sensitive_value</td>
+    <td><pre>sensitive; redacted</pre></td>
+    <td>string</td>
+  </tr>
+
+  <tr>
+    <td>a_string</td>
+    <td><pre>"foo"</pre></td>
+    <td>string</td>
+  </tr>
+
+</table>
+`,
+	}, {
 		command: `./terraputs -state-file testdata/nooutputs/show.json -heading foo`,
-		expectedOutput: `# foo
+		expectedOutput: `## foo
 
 Terraform state outputs.
 
@@ -265,7 +335,7 @@ Terraform state outputs.
 `,
 	}, {
 		command: `./terraputs -state-file testdata/emptyconfig/show.json -heading foo`,
-		expectedOutput: `# foo
+		expectedOutput: `## foo
 
 Terraform state outputs.
 

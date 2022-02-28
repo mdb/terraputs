@@ -25,19 +25,22 @@ var (
 )
 
 const (
-	stateDesc      string = "Optional; the state JSON output by 'terraform show -json'. Read from stdin if omitted"
-	stateFileDesc  string = "Optional; the path to a local file containing 'terraform show -json' output"
-	headingDesc    string = "Optional; the heading text for use in the printed output."
-	outputDesc     string = "Optional; the output format. Supported values: md, html."
-	versionDesc    string = "Print the current version and exit"
-	defaultHeading string = "Outputs"
-	defaultOutput  string = "md"
-	sensitive      string = "sensitive; redacted"
+	stateDesc          string = "Optional; the state JSON output by 'terraform show -json'. Read from stdin if omitted"
+	stateFileDesc      string = "Optional; the path to a local file containing 'terraform show -json' output"
+	headingDesc        string = "Optional; the heading text for use in the printed output."
+	outputDesc         string = "Optional; the output format. Supported values: md, html."
+	descriptionDesc    string = "Optional; a contextual description preceding the outputs."
+	versionDesc        string = "Print the current version and exit"
+	defaultHeading     string = "Outputs"
+	defaultDescription string = "Terraform state outputs."
+	defaultOutput      string = "md"
+	sensitive          string = "sensitive; redacted"
 )
 
 type data struct {
-	Heading string
-	Outputs map[string]*tfjson.StateOutput
+	Heading     string
+	Description string
+	Outputs     map[string]*tfjson.StateOutput
 }
 
 func value(output tfjson.StateOutput) string {
@@ -70,6 +73,7 @@ func main() {
 	stateFile := flag.String("state-file", "", stateFileDesc)
 	heading := flag.String("heading", defaultHeading, headingDesc)
 	output := flag.String("output", defaultOutput, outputDesc)
+	description := flag.String("description", defaultDescription, descriptionDesc)
 	flag.Parse()
 
 	args := flag.Args()
@@ -121,8 +125,9 @@ func main() {
 	}
 
 	err = t.Execute(os.Stdout, data{
-		Outputs: outputs,
-		Heading: *heading,
+		Outputs:     outputs,
+		Heading:     *heading,
+		Description: *description,
 	})
 	if err != nil {
 		exit(err)
