@@ -357,12 +357,27 @@ Terraform state outputs.
 		expectedOutput: "'foo' is not a supported output format. Supported formats: 'md' (default), 'html'",
 	}, {
 		command: `./terraputs -state-file testdata/emptyconfig-1.1.5/show.json -heading foo`,
-		expectedOutput: `# foo
+		expectedOutput: `## foo
 
 Terraform state outputs.
 
 | Output | Value | Type
 | --- | --- | --- |
+
+`,
+	}, {
+		command: `./terraputs -state $(cat testdata/basic-1.1.5/show.json)`,
+		expectedOutput: `## Outputs
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+| a_basic_map | map[foo:bar number:42] | map[string]interface {}
+| a_list | [foo bar] | []interface {}
+| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
+| a_sensitive_value | sensitive; redacted | string
+| a_string | foo | string
 
 `,
 	}}
