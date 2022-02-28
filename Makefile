@@ -1,4 +1,5 @@
-VERSION = 0.1.1
+VERSION = 0.1.3
+
 SOURCE = ./...
 
 .PHONY: help \
@@ -49,7 +50,7 @@ define generate-testdata
 		--volume $(shell pwd):/src \
 		--workdir /src/testdata/$(1) \
 		--entrypoint /bin/sh \
-		hashicorp/terraform \
+		hashicorp/terraform:$(2) \
 			-c \
 				"terraform init && \
 				terraform apply -auto-approve && \
@@ -57,9 +58,10 @@ define generate-testdata
 endef
 
 testdata:
-	$(call generate-testdata,basic)
-	$(call generate-testdata,nooutputs)
-	$(call generate-testdata,emptyconfig)
+	$(call generate-testdata,basic,1.0.5)
+	$(call generate-testdata,nooutputs,1.0.5)
+	$(call generate-testdata,emptyconfig,1.0.5)
+	$(call generate-testdata,emptyconfig-1.1.5,1.1.5)
 
 check-tag:
 	./scripts/ensure_unique_version.sh "$(VERSION)"

@@ -285,6 +285,16 @@ Terraform state outputs.
 		command:        `./terraputs -state $(cat testdata/basic/show.json) -output foo`,
 		expectedError:  errors.New("exit status 1"),
 		expectedOutput: "'foo' is not a supported output format. Supported formats: 'md' (default), 'html'",
+	}, {
+		command: `./terraputs -state-file testdata/emptyconfig-1.1.5/show.json -heading foo`,
+		expectedOutput: `# foo
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+
+`,
 	}}
 
 	for _, test := range tests {
