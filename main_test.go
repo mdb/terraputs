@@ -39,22 +39,6 @@ func TestMain(m *testing.M) {
 	}
 }
 
-func expectedOutput(heading string) string {
-	return fmt.Sprintf(`## %s
-
-Terraform state outputs.
-
-| Output | Value | Type
-| --- | --- | --- |
-| a_basic_map | map[foo:bar number:42] | map[string]interface {}
-| a_list | [foo bar] | []interface {}
-| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
-| a_sensitive_value | sensitive; redacted | string
-| a_string | foo | string
-
-`, heading)
-}
-
 func TestHelpFlag(t *testing.T) {
 	help := []string{
 		"-state string",
@@ -140,20 +124,8 @@ func TestTerraputs(t *testing.T) {
 		command:        `./terraputs -state $(cat testdata/basic/show.json) -heading foo`,
 		expectedOutput: expectedOutput("foo"),
 	}, {
-		command: `./terraputs -state $(cat testdata/basic/show.json) -description "A custom description."`,
-		expectedOutput: `## Outputs
-
-A custom description.
-
-| Output | Value | Type
-| --- | --- | --- |
-| a_basic_map | map[foo:bar number:42] | map[string]interface {}
-| a_list | [foo bar] | []interface {}
-| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
-| a_sensitive_value | sensitive; redacted | string
-| a_string | foo | string
-
-`,
+		command:        `./terraputs -state $(cat testdata/basic/show.json) -description "A custom description."`,
+		expectedOutput: strings.Replace(expectedOutput("Outputs"), "Terraform state outputs", "A custom description", 1),
 	}, {
 		command:        `./terraputs -state $(cat testdata/nooutputs/show.json) -heading foo`,
 		expectedOutput: expectedEmptyOutput,
@@ -164,8 +136,79 @@ A custom description.
 		command:        `./terraputs -state-file testdata/basic/show.json -heading foo`,
 		expectedOutput: expectedOutput("foo"),
 	}, {
-		command: `./terraputs -state-file testdata/basic/show.json -heading foo -output html`,
-		expectedOutput: `<h2>foo</h2>
+		command:        `./terraputs -state-file testdata/basic/show.json -heading foo -output html`,
+		expectedOutput: expectedHTMLOutput("foo"),
+	}, {
+		command:        `./terraputs -state-file testdata/basic/show.json -description "A custom description." -output html`,
+		expectedOutput: strings.Replace(expectedHTMLOutput("Outputs"), "Terraform state outputs", "A custom description", 1),
+	}, {
+		command:        `./terraputs -state-file testdata/nooutputs/show.json -heading foo`,
+		expectedOutput: expectedEmptyOutput,
+	}, {
+		command:        `./terraputs -state-file testdata/emptyconfig/show.json -heading foo`,
+		expectedOutput: expectedEmptyOutput,
+	}, {
+		command:        `./terraputs -state-file testdata/basic/i-do-not-exist.json -heading foo`,
+		expectedError:  errors.New("exit status 1"),
+		expectedOutput: "open testdata/basic/i-do-not-exist.json: no such file or directory",
+	}, {
+		command:        `./terraputs -state $(cat testdata/basic/show.json) -state-file testdata/basic/show.json -heading foo`,
+		expectedError:  errors.New("exit status 1"),
+		expectedOutput: "'-state' and '-state-file' are mutually exclusive; specify just one",
+	}, {
+		command:        `./terraputs -state $(cat testdata/basic/show.json) -output foo`,
+		expectedError:  errors.New("exit status 1"),
+		expectedOutput: "'foo' is not a supported output format. Supported formats: 'md' (default), 'html'",
+	}, {
+		command:        `./terraputs -state-file testdata/emptyconfig-1.1.5/show.json -heading foo`,
+		expectedOutput: expectedEmptyOutput,
+	}, {
+		command:        `./terraputs -state $(cat testdata/basic-1.1.5/show.json)`,
+		expectedOutput: expectedOutput("Outputs"),
+	}}
+
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("when terraputs is passed '%q'", test.command), func(t *testing.T) {
+			output, err := exec.Command("/bin/sh", "-c", test.command).CombinedOutput()
+			if err != nil && test.expectedError == nil {
+				t.Errorf("expected '%s' not to error; got '%v'", test.command, err)
+			}
+
+			if test.expectedError != nil && err == nil {
+				t.Errorf("expected error '%s'; got '%v'", test.expectedError.Error(), err)
+			}
+
+			if test.expectedError != nil && err != nil && test.expectedError.Error() != err.Error() {
+				t.Errorf("expected error '%s'; got '%v'", test.expectedError.Error(), err.Error())
+			}
+
+			if string(output) != test.expectedOutput {
+				t.Logf("expected output: \n%s", test.expectedOutput)
+				t.Logf("got output: \n%s", output)
+				t.Errorf("received unexpected output from '%s'", test.command)
+			}
+		})
+	}
+}
+
+func expectedOutput(heading string) string {
+	return fmt.Sprintf(`## %s
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+| a_basic_map | map[foo:bar number:42] | map[string]interface {}
+| a_list | [foo bar] | []interface {}
+| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
+| a_sensitive_value | sensitive; redacted | string
+| a_string | foo | string
+
+`, heading)
+}
+
+func expectedHTMLOutput(heading string) string {
+	return fmt.Sprintf(`<h2>%s</h2>
 <p>Terraform state outputs.</p>
 <table>
   <tr>
@@ -218,109 +261,5 @@ A custom description.
   </tr>
 
 </table>
-`,
-	}, {
-		command: `./terraputs -state-file testdata/basic/show.json -description "A custom description." -output html`,
-		expectedOutput: `<h2>Outputs</h2>
-<p>A custom description.</p>
-<table>
-  <tr>
-    <th>Output</th>
-    <th>Value</th>
-    <th>Type</th>
-  </tr>
-
-  <tr>
-    <td>a_basic_map</td>
-    <td><pre>{
-  "foo": "bar",
-  "number": 42
-}</pre></td>
-    <td>map[string]interface {}</td>
-  </tr>
-
-  <tr>
-    <td>a_list</td>
-    <td><pre>[
-  "foo",
-  "bar"
-]</pre></td>
-    <td>[]interface {}</td>
-  </tr>
-
-  <tr>
-    <td>a_nested_map</td>
-    <td><pre>{
-  "baz": {
-    "bar": "baz",
-    "id": "123"
-  },
-  "foo": "bar",
-  "number": 42
-}</pre></td>
-    <td>map[string]interface {}</td>
-  </tr>
-
-  <tr>
-    <td>a_sensitive_value</td>
-    <td><pre>sensitive; redacted</pre></td>
-    <td>string</td>
-  </tr>
-
-  <tr>
-    <td>a_string</td>
-    <td><pre>"foo"</pre></td>
-    <td>string</td>
-  </tr>
-
-</table>
-`,
-	}, {
-		command:        `./terraputs -state-file testdata/nooutputs/show.json -heading foo`,
-		expectedOutput: expectedEmptyOutput,
-	}, {
-		command:        `./terraputs -state-file testdata/emptyconfig/show.json -heading foo`,
-		expectedOutput: expectedEmptyOutput,
-	}, {
-		command:        `./terraputs -state-file testdata/basic/i-do-not-exist.json -heading foo`,
-		expectedError:  errors.New("exit status 1"),
-		expectedOutput: "open testdata/basic/i-do-not-exist.json: no such file or directory",
-	}, {
-		command:        `./terraputs -state $(cat testdata/basic/show.json) -state-file testdata/basic/show.json -heading foo`,
-		expectedError:  errors.New("exit status 1"),
-		expectedOutput: "'-state' and '-state-file' are mutually exclusive; specify just one",
-	}, {
-		command:        `./terraputs -state $(cat testdata/basic/show.json) -output foo`,
-		expectedError:  errors.New("exit status 1"),
-		expectedOutput: "'foo' is not a supported output format. Supported formats: 'md' (default), 'html'",
-	}, {
-		command:        `./terraputs -state-file testdata/emptyconfig-1.1.5/show.json -heading foo`,
-		expectedOutput: expectedEmptyOutput,
-	}, {
-		command:        `./terraputs -state $(cat testdata/basic-1.1.5/show.json)`,
-		expectedOutput: expectedOutput("Outputs"),
-	}}
-
-	for _, test := range tests {
-		t.Run(fmt.Sprintf("when terraputs is passed '%q'", test.command), func(t *testing.T) {
-			output, err := exec.Command("/bin/sh", "-c", test.command).CombinedOutput()
-			if err != nil && test.expectedError == nil {
-				t.Errorf("expected '%s' not to error; got '%v'", test.command, err)
-			}
-
-			if test.expectedError != nil && err == nil {
-				t.Errorf("expected error '%s'; got '%v'", test.expectedError.Error(), err)
-			}
-
-			if test.expectedError != nil && err != nil && test.expectedError.Error() != err.Error() {
-				t.Errorf("expected error '%s'; got '%v'", test.expectedError.Error(), err.Error())
-			}
-
-			if string(output) != test.expectedOutput {
-				t.Logf("expected output: \n%s", test.expectedOutput)
-				t.Logf("got output: \n%s", output)
-				t.Errorf("received unexpected output from '%s'", test.command)
-			}
-		})
-	}
+`, heading)
 }
