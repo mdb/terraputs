@@ -11,20 +11,7 @@ import (
 )
 
 const (
-	testVersion    string = "test"
-	expectedOutput string = `## Outputs
-
-Terraform state outputs.
-
-| Output | Value | Type
-| --- | --- | --- |
-| a_basic_map | map[foo:bar number:42] | map[string]interface {}
-| a_list | [foo bar] | []interface {}
-| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
-| a_sensitive_value | sensitive; redacted | string
-| a_string | foo | string
-
-`
+	testVersion         string = "test"
 	expectedEmptyOutput string = `## foo
 
 Terraform state outputs.
@@ -50,6 +37,22 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func expectedOutput(heading string) string {
+	return fmt.Sprintf(`## %s
+
+Terraform state outputs.
+
+| Output | Value | Type
+| --- | --- | --- |
+| a_basic_map | map[foo:bar number:42] | map[string]interface {}
+| a_list | [foo bar] | []interface {}
+| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
+| a_sensitive_value | sensitive; redacted | string
+| a_string | foo | string
+
+`, heading)
 }
 
 func TestHelpFlag(t *testing.T) {
@@ -126,28 +129,16 @@ func TestTerraputs(t *testing.T) {
 		expectedOutput string
 	}{{
 		command:        `./terraputs -state $(cat testdata/basic/show.json)`,
-		expectedOutput: expectedOutput,
+		expectedOutput: expectedOutput("Outputs"),
 	}, {
 		command:        `./terraputs < testdata/basic/show.json`,
-		expectedOutput: expectedOutput,
+		expectedOutput: expectedOutput("Outputs"),
 	}, {
 		command:        `cat testdata/basic/show.json | ./terraputs`,
-		expectedOutput: expectedOutput,
+		expectedOutput: expectedOutput("Outputs"),
 	}, {
-		command: `./terraputs -state $(cat testdata/basic/show.json) -heading foo`,
-		expectedOutput: `## foo
-
-Terraform state outputs.
-
-| Output | Value | Type
-| --- | --- | --- |
-| a_basic_map | map[foo:bar number:42] | map[string]interface {}
-| a_list | [foo bar] | []interface {}
-| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
-| a_sensitive_value | sensitive; redacted | string
-| a_string | foo | string
-
-`,
+		command:        `./terraputs -state $(cat testdata/basic/show.json) -heading foo`,
+		expectedOutput: expectedOutput("foo"),
 	}, {
 		command: `./terraputs -state $(cat testdata/basic/show.json) -description "A custom description."`,
 		expectedOutput: `## Outputs
@@ -170,20 +161,8 @@ A custom description.
 		command:        `./terraputs -state $(cat testdata/emptyconfig/show.json) -heading foo`,
 		expectedOutput: expectedEmptyOutput,
 	}, {
-		command: `./terraputs -state-file testdata/basic/show.json -heading foo`,
-		expectedOutput: `## foo
-
-Terraform state outputs.
-
-| Output | Value | Type
-| --- | --- | --- |
-| a_basic_map | map[foo:bar number:42] | map[string]interface {}
-| a_list | [foo bar] | []interface {}
-| a_nested_map | map[baz:map[bar:baz id:123] foo:bar number:42] | map[string]interface {}
-| a_sensitive_value | sensitive; redacted | string
-| a_string | foo | string
-
-`,
+		command:        `./terraputs -state-file testdata/basic/show.json -heading foo`,
+		expectedOutput: expectedOutput("foo"),
 	}, {
 		command: `./terraputs -state-file testdata/basic/show.json -heading foo -output html`,
 		expectedOutput: `<h2>foo</h2>
@@ -319,7 +298,7 @@ Terraform state outputs.
 		expectedOutput: expectedEmptyOutput,
 	}, {
 		command:        `./terraputs -state $(cat testdata/basic-1.1.5/show.json)`,
-		expectedOutput: expectedOutput,
+		expectedOutput: expectedOutput("Outputs"),
 	}}
 
 	for _, test := range tests {
