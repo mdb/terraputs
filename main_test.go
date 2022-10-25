@@ -103,9 +103,10 @@ func TestVersionArg(t *testing.T) {
 }
 
 // These should all be ok and functionally equivalent:
-//   terraputs -state "$(cat stateFile)"
-//   terraputs < stateFile
-//   cat stateFile | terraputs
+//
+//	terraputs -state "$(cat stateFile)"
+//	terraputs < stateFile
+//	cat stateFile | terraputs
 func TestTerraputs(t *testing.T) {
 	tests := []struct {
 		command        string
