@@ -12,6 +12,7 @@ import (
 
 const (
 	testVersion         string = "test"
+	testExecutable      string = "terraputs-test"
 	expectedEmptyOutput string = `## foo
 
 Terraform state outputs.
@@ -23,8 +24,8 @@ Terraform state outputs.
 )
 
 func TestMain(m *testing.M) {
-	// compile an 'terraputs' for for use in running tests
-	exe := exec.Command("go", "build", "-ldflags", fmt.Sprintf("-X main.version=%s", testVersion), "-o", "terraputs")
+	// compile a 'terraputs' for use in running tests
+	exe := exec.Command("go", "build", "-ldflags", fmt.Sprintf("-X main.version=%s", testVersion), "-o", testExecutable)
 	err := exe.Run()
 	if err != nil {
 		os.Exit(1)
@@ -33,7 +34,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 
 	// delete the compiled terraputs
-	err = os.Remove("terraputs")
+	err = os.Remove(testExecutable)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,7 +65,7 @@ func TestHelpFlag(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("when terraputs is passed '%s'", test.arg), func(t *testing.T) {
-			output, err := exec.Command("./terraputs", test.arg).CombinedOutput()
+			output, err := exec.Command(fmt.Sprintf("./%s", testExecutable), test.arg).CombinedOutput()
 
 			if err != nil {
 				t.Errorf("expected '%s' not to error; got '%v'", test.arg, err)
@@ -89,7 +90,7 @@ func TestVersionArg(t *testing.T) {
 
 	for _, arg := range args {
 		t.Run(fmt.Sprintf("when terraputs is passed '%s'", arg), func(t *testing.T) {
-			output, err := exec.Command("./terraputs", arg).CombinedOutput()
+			output, err := exec.Command(fmt.Sprintf("./%s", testExecutable), arg).CombinedOutput()
 
 			if err != nil {
 				t.Errorf("expected '%s' not to cause error; got '%v'", arg, err)
@@ -108,63 +109,67 @@ func TestVersionArg(t *testing.T) {
 //	terraputs < stateFile
 //	cat stateFile | terraputs
 func TestTerraputs(t *testing.T) {
+	command := func(cmd string) string {
+		return fmt.Sprintf("./%s ", testExecutable) + cmd
+	}
+
 	tests := []struct {
 		command        string
 		expectedError  error
 		expectedOutput string
 	}{{
-		command:        `./terraputs -state $(cat testdata/basic/show.json)`,
+		command:        command("-state $(cat testdata/basic/show.json)"),
 		expectedOutput: expectedOutput("Outputs"),
 	}, {
-		command:        `./terraputs < testdata/basic/show.json`,
+		command:        command("< testdata/basic/show.json"),
 		expectedOutput: expectedOutput("Outputs"),
 	}, {
-		command:        `cat testdata/basic/show.json | ./terraputs`,
+		command:        fmt.Sprintf("cat testdata/basic/show.json | ./%s", testExecutable),
 		expectedOutput: expectedOutput("Outputs"),
 	}, {
-		command:        `./terraputs -state $(cat testdata/basic/show.json) -heading foo`,
+		command:        command("-state $(cat testdata/basic/show.json) -heading foo"),
 		expectedOutput: expectedOutput("foo"),
 	}, {
-		command:        `./terraputs -state $(cat testdata/basic/show.json) -description "A custom description."`,
+		command:        command(`-state $(cat testdata/basic/show.json) -description "A custom description."`),
 		expectedOutput: strings.Replace(expectedOutput("Outputs"), "Terraform state outputs", "A custom description", 1),
 	}, {
-		command:        `./terraputs -state $(cat testdata/nooutputs/show.json) -heading foo`,
+		command:        command("-state $(cat testdata/nooutputs/show.json) -heading foo"),
 		expectedOutput: expectedEmptyOutput,
 	}, {
-		command:        `./terraputs -state $(cat testdata/emptyconfig/show.json) -heading foo`,
+		command:        command("-state $(cat testdata/emptyconfig/show.json) -heading foo"),
 		expectedOutput: expectedEmptyOutput,
 	}, {
-		command:        `./terraputs -state-file testdata/basic/show.json -heading foo`,
+		command:        command("-state-file testdata/basic/show.json -heading foo"),
 		expectedOutput: expectedOutput("foo"),
 	}, {
-		command:        `./terraputs -state-file testdata/basic/show.json -heading foo -output html`,
+		command:        command("-state-file testdata/basic/show.json -heading foo -output html"),
 		expectedOutput: expectedHTMLOutput("foo"),
 	}, {
-		command:        `./terraputs -state-file testdata/basic/show.json -description "A custom description." -output html`,
+		command:        command(`-state-file testdata/basic/show.json -description "A custom description." -output html`),
 		expectedOutput: strings.Replace(expectedHTMLOutput("Outputs"), "Terraform state outputs", "A custom description", 1),
 	}, {
-		command:        `./terraputs -state-file testdata/nooutputs/show.json -heading foo`,
+		command:        command("-state-file testdata/nooutputs/show.json -heading foo"),
 		expectedOutput: expectedEmptyOutput,
 	}, {
-		command:        `./terraputs -state-file testdata/emptyconfig/show.json -heading foo`,
+		command:        command("-state-file testdata/emptyconfig/show.json -heading foo"),
 		expectedOutput: expectedEmptyOutput,
 	}, {
-		command:        `./terraputs -state-file testdata/basic/i-do-not-exist.json -heading foo`,
+		command:        command("-state-file testdata/basic/i-do-not-exist.json -heading foo"),
 		expectedError:  errors.New("exit status 1"),
 		expectedOutput: "open testdata/basic/i-do-not-exist.json: no such file or directory",
 	}, {
-		command:        `./terraputs -state $(cat testdata/basic/show.json) -state-file testdata/basic/show.json -heading foo`,
+		command:        command("-state $(cat testdata/basic/show.json) -state-file testdata/basic/show.json -heading foo"),
 		expectedError:  errors.New("exit status 1"),
 		expectedOutput: "'-state' and '-state-file' are mutually exclusive; specify just one",
 	}, {
-		command:        `./terraputs -state $(cat testdata/basic/show.json) -output foo`,
+		command:        command("-state $(cat testdata/basic/show.json) -output foo"),
 		expectedError:  errors.New("exit status 1"),
 		expectedOutput: "'foo' is not a supported output format. Supported formats: 'md' (default), 'html'",
 	}, {
-		command:        `./terraputs -state-file testdata/emptyconfig-1.1.5/show.json -heading foo`,
+		command:        command("-state-file testdata/emptyconfig-1.1.5/show.json -heading foo"),
 		expectedOutput: expectedEmptyOutput,
 	}, {
-		command:        `./terraputs -state $(cat testdata/basic-1.1.5/show.json)`,
+		command:        command("-state $(cat testdata/basic-1.1.5/show.json)"),
 		expectedOutput: expectedOutput("Outputs"),
 	}}
 
