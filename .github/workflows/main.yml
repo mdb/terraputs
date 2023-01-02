@@ -1,3 +1,4 @@
+---
 name: CI/CD
 
 on: [push, pull_request]
@@ -6,15 +7,15 @@ jobs:
   build-snapshot:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version-file: go.mod
-    - name: Build
-      run: make
-    - name: Ensure unique version
-      run: make check-tag
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+      - name: Build
+        run: make
+      - name: Ensure unique version
+        run: make check-tag
 
   build-and-publish-release:
     if: github.ref == 'refs/heads/main'

@@ -27,9 +27,9 @@ var (
 const (
 	stateDesc          string = "Optional; the state JSON output by 'terraform show -json'. Read from stdin if omitted"
 	stateFileDesc      string = "Optional; the path to a local file containing 'terraform show -json' output"
-	headingDesc        string = "Optional; the heading text for use in the printed output."
-	outputDesc         string = "Optional; the output format. Supported values: md, html."
-	descriptionDesc    string = "Optional; a contextual description preceding the outputs."
+	headingDesc        string = "Optional; the heading text for use in the printed output"
+	outputDesc         string = "Optional; the output format. Supported values: md, html"
+	descriptionDesc    string = "Optional; a contextual description preceding the outputs"
 	versionDesc        string = "Print the current version and exit"
 	defaultHeading     string = "Outputs"
 	defaultDescription string = "Terraform state outputs."
