@@ -20,6 +20,10 @@ checksum:
   name_template: 'checksums.txt'
 snapshot:
   name_template: "{{ .Version }}-next"
+dockers:
+  - image_templates:
+      - "clapclapexcitement/{{.ProjectName}}:latest"
+      - "clapclapexcitement/{{.ProjectName}}:{{.Version}}"
 changelog:
   sort: asc
   filters:
