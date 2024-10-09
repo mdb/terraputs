@@ -42,8 +42,9 @@ terraputs -state "$(terraform show -json)" -heading "Terraform Outputs"
 # directly from terraform, consider:
 terraform show -json | terraputs -heading "Terraform Outputs"
 
-# or read a tfstate file from the filesystem:
-terraputs < terraform.tfstate
+# or read a tfstate JSON file from the filesystem:
+terraform show -json > show.json
+terraputs < show.json
 ```
 
 ### Results examples
