@@ -7,11 +7,19 @@ jobs:
   build-snapshot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      # While not actually (currently) used in snapshot-building, logging in to
+      # DockerHub on non-main builds vets DockerHub login problems in advance of
+      # a merge to main.
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: clapclapexcitement
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build
         run: make
       - name: Ensure unique version
@@ -24,11 +32,16 @@ jobs:
     environment:
       name: release
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: clapclapexcitement
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Create release tag
         run: make tag
         env:
