@@ -1,5 +1,5 @@
-<h2>{{ .Heading }}</h2>
-<p>{{ .Description }}</p>
+{{ if .Heading }}<h2>{{ .Heading }}</h2>{{ end }}
+{{ if .Description }}<p>{{ .Description }}</p>{{ end }}
 <table>
   <tr>
     <th>Output</th>

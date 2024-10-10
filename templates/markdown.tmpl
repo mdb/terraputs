@@ -1,6 +1,6 @@
-## {{ .Heading }}
+{{ if .Heading }}## {{ .Heading }}{{ end }}
 
-{{ .Description }}
+{{ if .Description }}{{ .Description }}{{ end }}
 
 | Output | Value | Type
 | --- | --- | --- |
