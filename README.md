@@ -1,5 +1,8 @@
 [![CI/CD](https://github.com/mdb/terraputs/actions/workflows/main.yml/badge.svg)](https://github.com/mdb/terraputs/actions/workflows/main.yml)
 
+> [!CAUTION]
+> Some message
+
 # terraputs
 
 A CLI to generate Terraform outputs documentation.
