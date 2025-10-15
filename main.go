@@ -30,7 +30,6 @@ const (
 	headingDesc        string = "Optional; the heading text for use in the printed output"
 	outputDesc         string = "Optional; the output format. Supported values: md, html"
 	descriptionDesc    string = "Optional; a contextual description preceding the outputs"
-	versionDesc        string = "Print the current version and exit"
 	defaultHeading     string = "Outputs"
 	defaultDescription string = "Terraform state outputs."
 	defaultOutput      string = "md"
