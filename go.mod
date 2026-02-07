@@ -1,6 +1,6 @@
 module github.com/mdb/terraputs
 
-go 1.24.2
+go 1.25.5
 
 require (
 	github.com/goreleaser/goreleaser v1.26.2
