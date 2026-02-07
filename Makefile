@@ -62,6 +62,10 @@ testdata:
 	$(call generate-testdata,basic-1.1.5,1.1.5)
 .PHONY: testdata
 
+version:
+	@echo $(VERSION)
+.PHONY: version
+
 check-tag:
 	./scripts/ensure_unique_version.sh "$(VERSION)"
 .PHONY: check-tag
