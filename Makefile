@@ -1,4 +1,4 @@
-VERSION = 0.1.12
+VERSION = 0.1.13
 SOURCE = ./...
 GORELEASER=go run github.com/goreleaser/goreleaser/v2@v2.13.3
 
