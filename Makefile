@@ -1,11 +1,11 @@
 VERSION = 0.1.12
 SOURCE = ./...
+GORELEASER=go run github.com/goreleaser/goreleaser/v2@v2.13.3
 
 .DEFAULT_GOAL := build
 
 help:
 	# build:     build terraputs (default make target)
-	# tools:     install build dependencies cited in tools.go
 	# vet:       run 'go vet' against source code
 	# test-fmt:  validate that source code is formatted correctly
 	# test:      run automated tests
@@ -16,16 +16,11 @@ help:
 	# clean:     remove testdata fixtures and compiled artifacts
 .PHONY: help
 
-tools:
-	echo "Installing tools from tools.go"
-	cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
-.PHONY: tools
-
-build: tools
-	goreleaser release \
+build:
+	$(GORELEASER) release \
 		--snapshot \
-		--skip-publish \
-		--rm-dist
+		--skip=publish \
+		--clean
 .PHONY: build
 
 vet:
@@ -76,9 +71,9 @@ tag: check-tag
 	@git push origin $(VERSION)
 .PHONY: tag
 
-release: tools
-	goreleaser release \
-		--rm-dist
+release:
+	$(GORELEASER) release \
+		--clean
 .PHONY: release
 
 demo:
