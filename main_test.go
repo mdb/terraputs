@@ -171,6 +171,15 @@ func TestTerraputs(t *testing.T) {
 	}, {
 		command:        command("-state $(cat testdata/basic-1.1.5/show.json)"),
 		expectedOutput: expectedOutput("Outputs"),
+	}, {
+		command:        command("-state $(cat testdata/basic-1.14.0/show.json)"),
+		expectedOutput: expectedOutput("Outputs"),
+	}, {
+		command:        command("-state-file testdata/basic-1.14.0/show.json -heading foo"),
+		expectedOutput: expectedOutput("foo"),
+	}, {
+		command:        command("-state-file testdata/basic-1.14.0/show.json -heading foo -output html"),
+		expectedOutput: expectedHTMLOutput("foo"),
 	}}
 
 	for _, test := range tests {

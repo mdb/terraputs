@@ -55,6 +55,7 @@ testdata:
 	$(call generate-testdata,emptyconfig,1.0.5)
 	$(call generate-testdata,emptyconfig-1.1.5,1.1.5)
 	$(call generate-testdata,basic-1.1.5,1.1.5)
+	$(call generate-testdata,basic-1.14.0,1.14.0)
 .PHONY: testdata
 
 version:
