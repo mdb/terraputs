@@ -173,7 +173,7 @@ func TestTerraputs(t *testing.T) {
 	}
 
 	// Version compatibility tests - empty outputs
-	for _, dir := range []string{"nooutputs", "emptyconfig", "emptyconfig-1.1.5"} {
+	for _, dir := range []string{"nooutputs", "emptyconfig", "emptyconfig-1.1.5", "emptyconfig-1.14.0"} {
 		tests = append(tests, []testCase{{
 			command:        command(fmt.Sprintf("-state $(cat testdata/%s/show.json) -heading foo", dir)),
 			expectedOutput: expectedEmptyOutput,
