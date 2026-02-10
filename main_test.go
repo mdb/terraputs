@@ -113,11 +113,14 @@ func TestTerraputs(t *testing.T) {
 		return fmt.Sprintf("./%s ", testExecutable) + cmd
 	}
 
-	tests := []struct {
+	type testCase struct {
 		command        string
 		expectedError  error
 		expectedOutput string
-	}{{
+	}
+
+	// Input method variations (stdin, pipe, -state flag)
+	tests := []testCase{{
 		command:        command("-state $(cat testdata/basic/show.json)"),
 		expectedOutput: expectedOutput("Outputs"),
 	}, {
@@ -126,34 +129,22 @@ func TestTerraputs(t *testing.T) {
 	}, {
 		command:        fmt.Sprintf("cat testdata/basic/show.json | ./%s", testExecutable),
 		expectedOutput: expectedOutput("Outputs"),
-	}, {
+	}}
+
+	// Custom heading and description tests
+	tests = append(tests, []testCase{{
 		command:        command("-state $(cat testdata/basic/show.json) -heading foo"),
 		expectedOutput: expectedOutput("foo"),
 	}, {
 		command:        command(`-state $(cat testdata/basic/show.json) -description "A custom description."`),
 		expectedOutput: strings.Replace(expectedOutput("Outputs"), "Terraform state outputs", "A custom description", 1),
 	}, {
-		command:        command("-state $(cat testdata/nooutputs/show.json) -heading foo"),
-		expectedOutput: expectedEmptyOutput,
-	}, {
-		command:        command("-state $(cat testdata/emptyconfig/show.json) -heading foo"),
-		expectedOutput: expectedEmptyOutput,
-	}, {
-		command:        command("-state-file testdata/basic/show.json -heading foo"),
-		expectedOutput: expectedOutput("foo"),
-	}, {
-		command:        command("-state-file testdata/basic/show.json -heading foo -output html"),
-		expectedOutput: expectedHTMLOutput("foo"),
-	}, {
 		command:        command(`-state-file testdata/basic/show.json -description "A custom description." -output html`),
 		expectedOutput: strings.Replace(expectedHTMLOutput("Outputs"), "Terraform state outputs", "A custom description", 1),
-	}, {
-		command:        command("-state-file testdata/nooutputs/show.json -heading foo"),
-		expectedOutput: expectedEmptyOutput,
-	}, {
-		command:        command("-state-file testdata/emptyconfig/show.json -heading foo"),
-		expectedOutput: expectedEmptyOutput,
-	}, {
+	}}...)
+
+	// Error cases
+	tests = append(tests, []testCase{{
 		command:        command("-state-file testdata/basic/i-do-not-exist.json -heading foo"),
 		expectedError:  errors.New("exit status 1"),
 		expectedOutput: "open testdata/basic/i-do-not-exist.json: no such file or directory",
@@ -165,22 +156,32 @@ func TestTerraputs(t *testing.T) {
 		command:        command("-state $(cat testdata/basic/show.json) -output foo"),
 		expectedError:  errors.New("exit status 1"),
 		expectedOutput: "'foo' is not a supported output format. Supported formats: 'md' (default), 'html'",
-	}, {
-		command:        command("-state-file testdata/emptyconfig-1.1.5/show.json -heading foo"),
-		expectedOutput: expectedEmptyOutput,
-	}, {
-		command:        command("-state $(cat testdata/basic-1.1.5/show.json)"),
-		expectedOutput: expectedOutput("Outputs"),
-	}, {
-		command:        command("-state $(cat testdata/basic-1.14.0/show.json)"),
-		expectedOutput: expectedOutput("Outputs"),
-	}, {
-		command:        command("-state-file testdata/basic-1.14.0/show.json -heading foo"),
-		expectedOutput: expectedOutput("foo"),
-	}, {
-		command:        command("-state-file testdata/basic-1.14.0/show.json -heading foo -output html"),
-		expectedOutput: expectedHTMLOutput("foo"),
-	}}
+	}}...)
+
+	// Version compatibility tests - basic outputs
+	for _, dir := range []string{"basic", "basic-1.1.5", "basic-1.14.0"} {
+		tests = append(tests, []testCase{{
+			command:        command(fmt.Sprintf("-state $(cat testdata/%s/show.json)", dir)),
+			expectedOutput: expectedOutput("Outputs"),
+		}, {
+			command:        command(fmt.Sprintf("-state-file testdata/%s/show.json -heading foo", dir)),
+			expectedOutput: expectedOutput("foo"),
+		}, {
+			command:        command(fmt.Sprintf("-state-file testdata/%s/show.json -heading foo -output html", dir)),
+			expectedOutput: expectedHTMLOutput("foo"),
+		}}...)
+	}
+
+	// Version compatibility tests - empty outputs
+	for _, dir := range []string{"nooutputs", "emptyconfig", "emptyconfig-1.1.5"} {
+		tests = append(tests, []testCase{{
+			command:        command(fmt.Sprintf("-state $(cat testdata/%s/show.json) -heading foo", dir)),
+			expectedOutput: expectedEmptyOutput,
+		}, {
+			command:        command(fmt.Sprintf("-state-file testdata/%s/show.json -heading foo", dir)),
+			expectedOutput: expectedEmptyOutput,
+		}}...)
+	}
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("when terraputs is passed '%q'", test.command), func(t *testing.T) {
