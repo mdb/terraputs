@@ -1,4 +1,5 @@
 ---
+version: 2
 project_name: terraputs
 before:
   hooks:
@@ -15,11 +16,10 @@ archives:
   - wrap_in_directory: true
     format_overrides:
       - goos: windows
-        format: zip
+        formats:
+          - zip
 checksum:
   name_template: 'checksums.txt'
-snapshot:
-  name_template: "{{ .Version }}-next"
 dockers:
   - image_templates:
       - "clapclapexcitement/{{.ProjectName}}:latest"
